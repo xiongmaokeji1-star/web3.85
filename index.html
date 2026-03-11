@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web3 - 启动中</title>
+  <style>
+    /* ── Reset & base ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #050b18;
+      --card:      #0d1b2e;
+      --border:    rgba(0, 212, 255, 0.18);
+      --cyan:      #00d4ff;
+      --purple:    #7c3aed;
+      --pink:      #f472b6;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --glow-cyan: 0 0 24px rgba(0, 212, 255, 0.45);
+      --glow-purple: 0 0 24px rgba(124, 58, 237, 0.5);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+      overflow: hidden;
+    }
+
+    /* ── Starfield canvas ──────────────────────────────────────── */
+    #starfield {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    /* ── Floating grid overlay ─────────────────────────────────── */
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background-image:
+        linear-gradient(rgba(0, 212, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridDrift 30s linear infinite;
+    }
+
+    @keyframes gridDrift {
+      0%   { background-position: 0 0; }
+      100% { background-position: 60px 60px; }
+    }
+
+    /* ── Main container ────────────────────────────────────────── */
+    .container {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      gap: 2.5rem;
+    }
+
+    /* ── Hexagon logo ──────────────────────────────────────────── */
+    .logo-wrap {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hex-ring {
+      position: absolute;
+      inset: 0;
+      border: 2px solid var(--cyan);
+      clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+      animation: hexSpin 8s linear infinite;
+      box-shadow: var(--glow-cyan);
+    }
+
+    .hex-ring-outer {
+      position: absolute;
+      inset: -14px;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+      animation: hexSpin 14s linear infinite reverse;
+    }
+
+    @keyframes hexSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    .logo-icon {
+      font-size: 3rem;
+      line-height: 1;
+      filter: drop-shadow(0 0 12px var(--cyan));
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1);   opacity: 1; }
+      50%       { transform: scale(1.1); opacity: 0.85; }
+    }
+
+    /* ── Heading ───────────────────────────────────────────────── */
+    .brand {
+      text-align: center;
+      line-height: 1.15;
+    }
+
+    .brand-title {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 60%, var(--pink) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 18px rgba(0, 212, 255, 0.4));
+    }
+
+    .brand-sub {
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── Block-chain node animation ────────────────────────────── */
+    .chain {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .block {
+      width: 42px;
+      height: 42px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: var(--cyan);
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      letter-spacing: 0;
+      position: relative;
+      animation: blockGlow 3s ease-in-out infinite;
+    }
+
+    .block:nth-child(1) { animation-delay: 0s; }
+    .block:nth-child(3) { animation-delay: 0.6s; }
+    .block:nth-child(5) { animation-delay: 1.2s; }
+    .block:nth-child(7) { animation-delay: 1.8s; }
+    .block:nth-child(9) { animation-delay: 2.4s; }
+
+    @keyframes blockGlow {
+      0%, 100% {
+        border-color: var(--border);
+        box-shadow: none;
+        color: var(--muted);
+      }
+      50% {
+        border-color: var(--cyan);
+        box-shadow: var(--glow-cyan);
+        color: var(--cyan);
+      }
+    }
+
+    .chain-link {
+      width: 28px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chain-link::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, #fff, transparent);
+      animation: linkFlash 2s linear infinite;
+    }
+
+    @keyframes linkFlash {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+
+    /* ── Progress bar ──────────────────────────────────────────── */
+    .progress-wrap {
+      width: min(420px, 90vw);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--cyan), var(--purple), var(--pink));
+      box-shadow: 0 0 12px rgba(0, 212, 255, 0.6);
+      transition: width 0.15s ease;
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+    }
+
+    .progress-status {
+      color: var(--cyan);
+      font-family: 'Courier New', monospace;
+      min-height: 1.1em;
+    }
+
+    .progress-pct {
+      color: var(--muted);
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ── Feature pills ─────────────────────────────────────────── */
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      justify-content: center;
+      max-width: 480px;
+    }
+
+    .pill {
+      padding: 0.3rem 0.9rem;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      border: 1px solid var(--border);
+      background: rgba(0, 212, 255, 0.06);
+      color: var(--muted);
+      transition: all 0.4s ease;
+    }
+
+    .pill.active {
+      border-color: var(--cyan);
+      background: rgba(0, 212, 255, 0.12);
+      color: var(--cyan);
+      box-shadow: var(--glow-cyan);
+    }
+
+    /* ── Footer hint ───────────────────────────────────────────── */
+    .footer {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      z-index: 10;
+    }
+
+    /* ── Done overlay ──────────────────────────────────────────── */
+    #done-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: var(--bg);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1.5rem;
+      animation: fadeIn 0.6s ease;
+    }
+
+    #done-overlay.visible { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .done-check {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+      box-shadow: var(--glow-cyan), inset 0 0 24px rgba(0, 212, 255, 0.1);
+      animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .done-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .enter-btn {
+      margin-top: 0.5rem;
+      padding: 0.8rem 2.4rem;
+      border-radius: 99px;
+      border: 1.5px solid var(--cyan);
+      background: transparent;
+      color: var(--cyan);
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: var(--glow-cyan);
+    }
+
+    .enter-btn:hover {
+      background: rgba(0, 212, 255, 0.12);
+      box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Starfield -->
+<canvas id="starfield"></canvas>
+
+<!-- Grid -->
+<div class="grid-overlay"></div>
+
+<!-- Main loading UI -->
+<div class="container" id="loading-ui">
+
+  <!-- Hexagon Logo -->
+  <div class="logo-wrap">
+    <div class="hex-ring-outer"></div>
+    <div class="hex-ring"></div>
+    <span class="logo-icon">⬡</span>
+  </div>
+
+  <!-- Brand -->
+  <div class="brand">
+    <div class="brand-title">Web3 Portal</div>
+    <div class="brand-sub">Decentralized · Trustless · Open</div>
+  </div>
+
+  <!-- Mini blockchain -->
+  <div class="chain" aria-hidden="true">
+    <div class="block">B#1</div>
+    <div class="chain-link"></div>
+    <div class="block">B#2</div>
+    <div class="chain-link"></div>
+    <div class="block">B#3</div>
+    <div class="chain-link"></div>
+    <div class="block">B#4</div>
+    <div class="chain-link"></div>
+    <div class="block">B#5</div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-region">
+    <div class="progress-track">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="progress-labels">
+      <span class="progress-status" id="progress-status">正在初始化节点…</span>
+      <span class="progress-pct" id="progress-pct">0%</span>
+    </div>
+  </div>
+
+  <!-- Feature pills -->
+  <div class="pills" id="pills">
+    <span class="pill" data-at="15">🔗 区块链</span>
+    <span class="pill" data-at="30">🔐 钱包连接</span>
+    <span class="pill" data-at="45">📡 节点同步</span>
+    <span class="pill" data-at="60">💎 DeFi 模块</span>
+    <span class="pill" data-at="75">🖼 NFT 引擎</span>
+    <span class="pill" data-at="90">⚡ 完成加载</span>
+  </div>
+</div>
+
+<!-- Done screen -->
+<div id="done-overlay">
+  <div class="done-check">✓</div>
+  <div class="done-title">已连接 Web3 网络</div>
+  <button class="enter-btn" id="enter-btn" aria-label="进入 Web3 应用">进入应用 →</button>
+</div>
+
+<!-- Footer -->
+<footer class="footer">Powered by Blockchain Technology &nbsp;|&nbsp; EVM Compatible</footer>
+
+<script>
+  /* ── Starfield ──────────────────────────────────────────────── */
+  (function () {
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resize() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function initStars(n) {
+      stars = [];
+      for (let i = 0; i < n; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: Math.random() * 1.4 + 0.2,
+          a: Math.random(),
+          da: (Math.random() - 0.5) * 0.006,
+          vx: (Math.random() - 0.5) * 0.08,
+          vy: (Math.random() - 0.5) * 0.08,
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      stars.forEach(s => {
+        s.a += s.da;
+        if (s.a <= 0 || s.a >= 1) s.da *= -1;
+        s.x = (s.x + s.vx + canvas.width)  % canvas.width;
+        s.y = (s.y + s.vy + canvas.height) % canvas.height;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 212, 255, ${s.a * 0.7})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    initStars(180);
+    draw();
+    window.addEventListener('resize', () => { resize(); initStars(180); });
+  })();
+
+  /* ── Loading sequence ───────────────────────────────────────── */
+  const statusMessages = [
+    '正在初始化节点…',
+    '连接去中心化网络…',
+    '验证智能合约…',
+    '同步链上数据…',
+    '加载 DeFi 协议…',
+    '构建 NFT 索引…',
+    '安全握手完成…',
+    '准备就绪 ✓',
+  ];
+
+  const bar     = document.getElementById('progress-bar');
+  const status  = document.getElementById('progress-status');
+  const pctEl   = document.getElementById('progress-pct');
+  const region  = document.getElementById('progress-region');
+  const pills   = document.querySelectorAll('.pill');
+  const overlay = document.getElementById('done-overlay');
+
+  let pct = 0;
+
+  function activatePills(current) {
+    pills.forEach(p => {
+      if (parseInt(p.dataset.at) <= current) p.classList.add('active');
+    });
+  }
+
+  function pickStatus(p) {
+    const idx = Math.min(Math.floor(p / 100 * statusMessages.length), statusMessages.length - 1);
+    return statusMessages[idx];
+  }
+
+  function step() {
+    const increment = Math.random() * 3.5 + 0.8;
+    pct = Math.min(pct + increment, 100);
+
+    bar.style.width = pct + '%';
+    pctEl.textContent = Math.floor(pct) + '%';
+    region.setAttribute('aria-valuenow', Math.floor(pct));
+    status.textContent = pickStatus(pct);
+    activatePills(pct);
+
+    if (pct < 100) {
+      const delay = 80 + Math.random() * 120;
+      setTimeout(step, delay);
+    } else {
+      bar.style.width = '100%';
+      pctEl.textContent = '100%';
+      status.textContent = '准备就绪 ✓';
+      setTimeout(showDone, 800);
+    }
+  }
+
+  function showDone() {
+    overlay.classList.add('visible');
+  }
+
+  function enterApp() {
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.5s ease';
+
+    /* Dispatch a custom event so a parent application can intercept the navigation. */
+    window.dispatchEvent(new CustomEvent('web3:ready'));
+
+    /* Navigate to the main app. Change APP_URL to your actual application route.
+       Falls back gracefully by simply fading out the overlay when no URL is set. */
+    const APP_URL = '';
+    setTimeout(() => {
+      if (APP_URL) {
+        window.location.href = APP_URL;
+      } else {
+        overlay.style.display = 'none';
+      }
+    }, 500);
+  }
+
+  document.getElementById('enter-btn').addEventListener('click', enterApp);
+
+  /* Start after a short pause */
+  setTimeout(step, 600);
+</script>
+</body>
+</html>
