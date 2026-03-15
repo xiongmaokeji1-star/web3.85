@@ -350,9 +350,37 @@
       box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
       transform: translateY(-2px);
     }
+
+    /* ── Jobs link ─────────────────────────────────────────────── */
+    .jobs-link {
+      position: fixed;
+      top: 1.2rem;
+      right: 1.5rem;
+      z-index: 20;
+      padding: 0.4rem 1.1rem;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: rgba(0, 212, 255, 0.06);
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      transition: all 0.25s ease;
+    }
+
+    .jobs-link:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(0, 212, 255, 0.1);
+      box-shadow: var(--glow-cyan);
+    }
   </style>
 </head>
 <body>
+
+<!-- Jobs link -->
+<a href="jobs.html" class="jobs-link" aria-label="Jobs page">招聘 ✦</a>
 
 <!-- Starfield -->
 <canvas id="starfield"></canvas>
@@ -535,7 +563,7 @@
 
     /* Navigate to the main app. Change APP_URL to your actual application route.
        Falls back gracefully by simply fading out the overlay when no URL is set. */
-    const APP_URL = '';
+    const APP_URL = 'jobs.html';
     setTimeout(() => {
       if (APP_URL) {
         window.location.href = APP_URL;

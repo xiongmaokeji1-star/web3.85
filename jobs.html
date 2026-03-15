@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web3 Portal - 招聘</title>
+  <style>
+    /* ── Reset & base ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #050b18;
+      --card:      #0d1b2e;
+      --card2:     #0a1525;
+      --border:    rgba(0, 212, 255, 0.18);
+      --cyan:      #00d4ff;
+      --purple:    #7c3aed;
+      --pink:      #f472b6;
+      --green:     #34d399;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --glow-cyan:   0 0 24px rgba(0, 212, 255, 0.45);
+      --glow-purple: 0 0 24px rgba(124, 58, 237, 0.5);
+      --glow-green:  0 0 16px rgba(52, 211, 153, 0.4);
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+      line-height: 1.6;
+    }
+
+    /* ── Starfield canvas ──────────────────────────────────────── */
+    #starfield {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Floating grid overlay ─────────────────────────────────── */
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(0, 212, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridDrift 30s linear infinite;
+    }
+
+    @keyframes gridDrift {
+      0%   { background-position: 0 0; }
+      100% { background-position: 60px 60px; }
+    }
+
+    /* ── Top nav ───────────────────────────────────────────────── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(5, 11, 24, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-logo-icon {
+      font-size: 1.4rem;
+      -webkit-text-fill-color: initial;
+      filter: drop-shadow(0 0 8px var(--cyan));
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--cyan);
+    }
+
+    /* ── Page wrapper ──────────────────────────────────────────── */
+    .page {
+      position: relative;
+      z-index: 10;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+
+    /* ── Hero ──────────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 3rem 0 2.5rem;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 0.25rem 0.9rem;
+      border-radius: 99px;
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+      box-shadow: var(--glow-cyan);
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      line-height: 1.15;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 60%, var(--pink) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 18px rgba(0, 212, 255, 0.3));
+      margin-bottom: 1rem;
+    }
+
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* ── Stats bar ─────────────────────────────────────────────── */
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin: 2rem 0;
+    }
+
+    .stat-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.8rem;
+      text-align: center;
+      min-width: 130px;
+    }
+
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--cyan);
+      font-family: 'Courier New', monospace;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin-top: 0.2rem;
+    }
+
+    /* ── Section headings ──────────────────────────────────────── */
+    .section-heading {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .section-heading::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    /* ── Job cards ─────────────────────────────────────────────── */
+    .jobs-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      margin-bottom: 3rem;
+    }
+
+    .job-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem 1.8rem;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+
+    .job-card:hover {
+      border-color: var(--cyan);
+      box-shadow: var(--glow-cyan);
+    }
+
+    .job-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .job-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .job-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .job-tag {
+      padding: 0.2rem 0.65rem;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .job-tag.remote  { border-color: rgba(52, 211, 153, 0.35); color: var(--green); }
+    .job-tag.hot     { border-color: rgba(244, 114, 182, 0.35); color: var(--pink); }
+    .job-tag.dept    { border-color: rgba(124, 58, 237, 0.35);  color: #a78bfa; }
+
+    .job-salary {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--cyan);
+      white-space: nowrap;
+    }
+
+    .job-desc {
+      margin-top: 0.9rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .job-requirements {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .job-requirements ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      padding-top: 0.4rem;
+    }
+
+    .job-requirements li::before {
+      content: '▸ ';
+      color: var(--cyan);
+    }
+
+    .apply-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 1rem;
+      padding: 0.5rem 1.2rem;
+      border-radius: 99px;
+      border: 1px solid var(--cyan);
+      background: transparent;
+      color: var(--cyan);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.25s ease;
+    }
+
+    .apply-link:hover {
+      background: rgba(0, 212, 255, 0.1);
+      box-shadow: var(--glow-cyan);
+      transform: translateY(-1px);
+    }
+
+    /* ── Benefits ──────────────────────────────────────────────── */
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .benefit-card {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.2rem 1.4rem;
+      transition: border-color 0.3s;
+    }
+
+    .benefit-card:hover {
+      border-color: rgba(124, 58, 237, 0.5);
+    }
+
+    .benefit-icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+
+    .benefit-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+
+    .benefit-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* ── Process steps ─────────────────────────────────────────── */
+    .process-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .process-step {
+      display: flex;
+      gap: 1.2rem;
+      align-items: flex-start;
+      position: relative;
+    }
+
+    .step-line {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .step-dot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid var(--cyan);
+      background: var(--card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--cyan);
+      font-family: 'Courier New', monospace;
+      box-shadow: var(--glow-cyan);
+      flex-shrink: 0;
+      z-index: 1;
+    }
+
+    .step-connector {
+      width: 2px;
+      flex: 1;
+      min-height: 24px;
+      background: linear-gradient(180deg, var(--cyan), var(--purple));
+      opacity: 0.35;
+      margin: 4px 0;
+    }
+
+    .process-step:last-child .step-connector {
+      display: none;
+    }
+
+    .step-content {
+      padding: 0.2rem 0 1.4rem;
+    }
+
+    .step-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .step-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    /* ── CTA banner ────────────────────────────────────────────── */
+    .cta-banner {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.07), rgba(124, 58, 237, 0.1));
+      border: 1px solid rgba(0, 212, 255, 0.25);
+      border-radius: 20px;
+      padding: 2.5rem;
+      text-align: center;
+    }
+
+    .cta-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.75rem;
+    }
+
+    .cta-desc {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-email {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 2rem;
+      border-radius: 99px;
+      border: 1.5px solid var(--cyan);
+      background: rgba(0, 212, 255, 0.08);
+      color: var(--cyan);
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      box-shadow: var(--glow-cyan);
+    }
+
+    .cta-email:hover {
+      background: rgba(0, 212, 255, 0.18);
+      box-shadow: 0 0 40px rgba(0, 212, 255, 0.5);
+      transform: translateY(-2px);
+    }
+
+    /* ── Footer hint ───────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 2rem 0 0;
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Responsive ────────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .nav { padding: 0.75rem 1rem; }
+      .nav-links { gap: 1rem; }
+      .page { padding: 2rem 1rem 4rem; }
+      .hero { padding: 2rem 0 1.5rem; }
+      .job-card { padding: 1.2rem; }
+      .cta-banner { padding: 1.8rem 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Starfield -->
+<canvas id="starfield"></canvas>
+
+<!-- Grid overlay -->
+<div class="grid-overlay"></div>
+
+<!-- Navigation -->
+<nav class="nav">
+  <a href="index.html" class="nav-logo">
+    <span class="nav-logo-icon">⬡</span>
+    Web3 Portal
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">首页</a></li>
+    <li><a href="jobs.html" class="active">招聘</a></li>
+  </ul>
+</nav>
+
+<!-- Main page content -->
+<main class="page">
+
+  <!-- Hero section -->
+  <section class="hero">
+    <div class="hero-badge">加入我们 · Join Us</div>
+    <h1 class="hero-title">共建下一代 Web3 生态</h1>
+    <p class="hero-sub">我们正在寻找热爱区块链技术、充满激情的优秀人才，一起构建去中心化的未来。</p>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats" aria-label="公司数据">
+    <div class="stat-item">
+      <span class="stat-value">50+</span>
+      <span class="stat-label">全球团队成员</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">12</span>
+      <span class="stat-label">开放职位</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">30+</span>
+      <span class="stat-label">国家与地区</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">100%</span>
+      <span class="stat-label">远程友好</span>
+    </div>
+  </div>
+
+  <!-- Job listings -->
+  <h2 class="section-heading">🔥 热门职位</h2>
+  <div class="jobs-grid" id="jobs-list">
+
+    <!-- Job 1 -->
+    <article class="job-card">
+      <div class="job-card-header">
+        <div>
+          <div class="job-title">资深智能合约工程师</div>
+          <div class="job-meta">
+            <span class="job-tag dept">技术研发</span>
+            <span class="job-tag remote">远程</span>
+            <span class="job-tag hot">🔥 急招</span>
+          </div>
+        </div>
+        <div class="job-salary">40K–70K / 月</div>
+      </div>
+      <p class="job-desc">负责核心 DeFi 协议智能合约的设计、开发与审计，参与链上产品架构评审，与跨链团队合作推进多链部署。</p>
+      <div class="job-requirements">
+        <strong style="color: var(--text); font-size: 0.82rem;">任职要求</strong>
+        <ul>
+          <li>3 年以上 Solidity / Rust 智能合约开发经验</li>
+          <li>熟悉 EVM、Hardhat、Foundry 等开发工具链</li>
+          <li>有 DeFi/DEX/借贷协议实战经历优先</li>
+          <li>良好的英文读写能力</li>
+        </ul>
+      </div>
+      <a href="mailto:hr@web3portal.io?subject=应聘-资深智能合约工程师" class="apply-link">立即投递 →</a>
+    </article>
+
+    <!-- Job 2 -->
+    <article class="job-card">
+      <div class="job-card-header">
+        <div>
+          <div class="job-title">全栈 Web3 前端工程师</div>
+          <div class="job-meta">
+            <span class="job-tag dept">产品技术</span>
+            <span class="job-tag remote">远程</span>
+          </div>
+        </div>
+        <div class="job-salary">25K–45K / 月</div>
+      </div>
+      <p class="job-desc">主导 dApp 前端开发，集成 MetaMask / WalletConnect 等主流钱包，打造流畅的链上交互体验。</p>
+      <div class="job-requirements">
+        <strong style="color: var(--text); font-size: 0.82rem;">任职要求</strong>
+        <ul>
+          <li>精通 React / Vue 3 及 TypeScript</li>
+          <li>熟悉 ethers.js / wagmi / viem 等 Web3 库</li>
+          <li>具备 Web3 钱包集成、签名、合约调用经验</li>
+          <li>有良好的产品审美与 UI 动效能力</li>
+        </ul>
+      </div>
+      <a href="mailto:hr@web3portal.io?subject=应聘-全栈Web3前端工程师" class="apply-link">立即投递 →</a>
+    </article>
+
+    <!-- Job 3 -->
+    <article class="job-card">
+      <div class="job-card-header">
+        <div>
+          <div class="job-title">区块链后端工程师 (Go)</div>
+          <div class="job-meta">
+            <span class="job-tag dept">基础设施</span>
+            <span class="job-tag remote">远程</span>
+            <span class="job-tag hot">🔥 急招</span>
+          </div>
+        </div>
+        <div class="job-salary">30K–55K / 月</div>
+      </div>
+      <p class="job-desc">构建高性能区块链数据索引服务与链上事件监听系统，负责节点运维与 RPC 接口开发。</p>
+      <div class="job-requirements">
+        <strong style="color: var(--text); font-size: 0.82rem;">任职要求</strong>
+        <ul>
+          <li>3 年以上 Go 语言后端开发经验</li>
+          <li>熟悉 Ethereum、Solana 或其他公链节点架构</li>
+          <li>有 The Graph / 自建索引器经验优先</li>
+          <li>掌握 PostgreSQL、Redis 等常用存储方案</li>
+        </ul>
+      </div>
+      <a href="mailto:hr@web3portal.io?subject=应聘-区块链后端工程师Go" class="apply-link">立即投递 →</a>
+    </article>
+
+    <!-- Job 4 -->
+    <article class="job-card">
+      <div class="job-card-header">
+        <div>
+          <div class="job-title">增长运营 / Web3 社区经理</div>
+          <div class="job-meta">
+            <span class="job-tag dept">市场运营</span>
+            <span class="job-tag remote">远程</span>
+          </div>
+        </div>
+        <div class="job-salary">15K–28K / 月</div>
+      </div>
+      <p class="job-desc">负责 Discord、Twitter/X、Telegram 等社区的日常运营，策划 AMA、空投等增长活动，建立品牌影响力。</p>
+      <div class="job-requirements">
+        <strong style="color: var(--text); font-size: 0.82rem;">任职要求</strong>
+        <ul>
+          <li>2 年以上 Web3/Crypto 社区运营经验</li>
+          <li>熟悉主流链上生态与 DeFi/NFT 文化</li>
+          <li>优秀的中英双语书面表达能力</li>
+          <li>具备数据分析能力，善用运营工具</li>
+        </ul>
+      </div>
+      <a href="mailto:hr@web3portal.io?subject=应聘-增长运营Web3社区经理" class="apply-link">立即投递 →</a>
+    </article>
+
+    <!-- Job 5 -->
+    <article class="job-card">
+      <div class="job-card-header">
+        <div>
+          <div class="job-title">区块链安全研究员</div>
+          <div class="job-meta">
+            <span class="job-tag dept">安全审计</span>
+            <span class="job-tag remote">远程</span>
+          </div>
+        </div>
+        <div class="job-salary">45K–80K / 月</div>
+      </div>
+      <p class="job-desc">对协议智能合约进行安全审计、漏洞挖掘与形式化验证，输出详尽审计报告，参与行业安全标准制定。</p>
+      <div class="job-requirements">
+        <strong style="color: var(--text); font-size: 0.82rem;">任职要求</strong>
+        <ul>
+          <li>熟悉常见智能合约攻击向量（重入、闪贷等）</li>
+          <li>掌握 Slither、Mythril、Echidna 等审计工具</li>
+          <li>有公开 CTF / Bug Bounty 获奖记录优先</li>
+          <li>能独立完成完整的安全审计报告</li>
+        </ul>
+      </div>
+      <a href="mailto:hr@web3portal.io?subject=应聘-区块链安全研究员" class="apply-link">立即投递 →</a>
+    </article>
+
+  </div>
+
+  <!-- Benefits section -->
+  <h2 class="section-heading">🎁 员工福利</h2>
+  <div class="benefits-grid">
+    <div class="benefit-card">
+      <span class="benefit-icon">🌍</span>
+      <div class="benefit-title">全球远程办公</div>
+      <div class="benefit-desc">完全远程友好，灵活工时，覆盖全球 30+ 国家和地区的薪资结算。</div>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">💰</span>
+      <div class="benefit-title">Token 激励计划</div>
+      <div class="benefit-desc">核心岗位享有项目 Token 期权激励，与公司共同成长分享价值。</div>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">📚</span>
+      <div class="benefit-title">持续学习津贴</div>
+      <div class="benefit-desc">每年提供 ¥10,000 学习补贴，涵盖课程、会议与技术书籍。</div>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">🏥</span>
+      <div class="benefit-title">商业健康保险</div>
+      <div class="benefit-desc">全额覆盖商业医疗保险，包括牙科与心理健康咨询服务。</div>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">🛡️</span>
+      <div class="benefit-title">硬件设备补贴</div>
+      <div class="benefit-desc">入职即享设备采购补贴，MacBook Pro / Linux 工作站自由选配。</div>
+    </div>
+    <div class="benefit-card">
+      <span class="benefit-icon">🤝</span>
+      <div class="benefit-title">线下团建活动</div>
+      <div class="benefit-desc">每年两次全球团队 Offsite，在顶级 Web3 峰会城市面对面交流。</div>
+    </div>
+  </div>
+
+  <!-- Hiring process -->
+  <h2 class="section-heading">🚀 招聘流程</h2>
+  <div class="process-steps">
+    <div class="process-step">
+      <div class="step-line">
+        <div class="step-dot">01</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">投递简历</div>
+        <div class="step-desc">发送中英文简历及 GitHub / 作品集链接至招聘邮箱，我们将在 3 个工作日内回复。</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-line">
+        <div class="step-dot">02</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">初步沟通</div>
+        <div class="step-desc">HR 电话或视频沟通，约 30 分钟，了解背景与岗位匹配度。</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-line">
+        <div class="step-dot">03</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">技术评估</div>
+        <div class="step-desc">在线技术测试或代码挑战，通常为 2–4 小时的带回作业，尊重候选人时间。</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-line">
+        <div class="step-dot">04</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">技术面试</div>
+        <div class="step-desc">与技术负责人进行深度技术面谈，讨论系统设计、链上架构与实际项目经验。</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-line">
+        <div class="step-dot">05</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">终面 & Offer</div>
+        <div class="step-desc">与创始团队进行价值观与文化契合度沟通，通过后 48 小时内发送 Offer。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-banner">
+    <div class="cta-title">没找到合适职位？</div>
+    <p class="cta-desc">我们随时欢迎优秀的人才加入。发送你的简历，告诉我们你能为团队带来什么。</p>
+    <a href="mailto:hr@web3portal.io?subject=自荐-Web3人才" class="cta-email">📧 hr@web3portal.io</a>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>Powered by Blockchain Technology &nbsp;|&nbsp; EVM Compatible &nbsp;|&nbsp; © 2025 Web3 Portal</p>
+  </footer>
+
+</main>
+
+<script>
+  /* ── Starfield (same as index.html) ─────────────────────────── */
+  (function () {
+    const canvas = document.getElementById('starfield');
+    const ctx    = canvas.getContext('2d');
+    let stars    = [];
+
+    function resize() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function initStars(n) {
+      stars = [];
+      for (let i = 0; i < n; i++) {
+        stars.push({
+          x:  Math.random() * canvas.width,
+          y:  Math.random() * canvas.height,
+          r:  Math.random() * 1.4 + 0.2,
+          a:  Math.random(),
+          da: (Math.random() - 0.5) * 0.006,
+          vx: (Math.random() - 0.5) * 0.08,
+          vy: (Math.random() - 0.5) * 0.08,
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      stars.forEach(s => {
+        s.a += s.da;
+        if (s.a <= 0 || s.a >= 1) s.da *= -1;
+        s.x = (s.x + s.vx + canvas.width)  % canvas.width;
+        s.y = (s.y + s.vy + canvas.height) % canvas.height;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 212, 255, ${s.a * 0.7})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    initStars(180);
+    draw();
+    window.addEventListener('resize', () => { resize(); initStars(180); });
+  })();
+</script>
+</body>
+</html>
