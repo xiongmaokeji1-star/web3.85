@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Web3 Admin</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body>
+
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-icon">🛡</span>
+      <span>Web3 Admin</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Main</div>
+      <a href="/admin/dashboard.html" class="sidebar-link active">
+        <span class="sidebar-link-icon">📊</span>
+        <span data-i18n="admin.dashboard">Dashboard</span>
+      </a>
+      <div class="sidebar-section-label">Management</div>
+      <a href="/admin/reports.html" class="sidebar-link">
+        <span class="sidebar-link-icon">📢</span>
+        <span data-i18n="admin.reports">Reports</span>
+      </a>
+      <a href="/admin/fraud-db.html" class="sidebar-link">
+        <span class="sidebar-link-icon">🗂</span>
+        <span data-i18n="admin.frauddb">Fraud Database</span>
+      </a>
+      <a href="/admin/users.html" class="sidebar-link">
+        <span class="sidebar-link-icon">👥</span>
+        <span data-i18n="admin.users">Users</span>
+      </a>
+      <div class="sidebar-section-label">System</div>
+      <a href="/home.html" class="sidebar-link" target="_blank">
+        <span class="sidebar-link-icon">🌐</span>
+        <span>View Platform</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="sidebar-link" style="width:100%;background:none;border:none;cursor:pointer;text-align:left;" onclick="logout()">
+        <span class="sidebar-link-icon">🚪</span>
+        <span data-i18n="admin.logout">Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <span class="admin-topbar-title" data-i18n="admin.dashboard">Dashboard</span>
+      </div>
+      <div class="admin-topbar-right">
+        <select class="lang-select" id="lang-select">
+          <option value="en">🌐 EN</option><option value="zh">中文</option>
+          <option value="th">ไทย</option><option value="vi">Tiếng Việt</option>
+          <option value="id">Bahasa</option><option value="km">ខ្មែរ</option>
+        </select>
+        <div class="admin-user-badge">
+          <span>👤</span>
+          <span id="admin-email">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-content">
+      <!-- Stat cards -->
+      <div class="grid-4" style="margin-bottom:2rem;">
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-card-label" data-i18n="admin.total_reports">Total Reports</div>
+            <div class="stat-card-value" id="dash-total-reports">—</div>
+          </div>
+          <div class="stat-card-icon">📢</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-card-label" data-i18n="admin.pending_reports">Pending</div>
+            <div class="stat-card-value" id="dash-pending" style="color:var(--yellow)">—</div>
+          </div>
+          <div class="stat-card-icon">⏳</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-card-label" data-i18n="admin.total_fraud">Fraud Entries</div>
+            <div class="stat-card-value" id="dash-fraud" style="color:var(--red)">—</div>
+          </div>
+          <div class="stat-card-icon">⚠️</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-body">
+            <div class="stat-card-label" data-i18n="admin.total_users">Users</div>
+            <div class="stat-card-value" id="dash-users">—</div>
+          </div>
+          <div class="stat-card-icon">👥</div>
+        </div>
+      </div>
+
+      <!-- Recent reports -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+          <h2 class="card-title">🕐 Recent Reports</h2>
+          <a href="/admin/reports.html" class="btn btn-outline btn-sm">View All</a>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Value</th>
+                <th>Status</th>
+                <th>Submitted</th>
+              </tr>
+            </thead>
+            <tbody id="recent-tbody">
+              <tr><td colspan="4" style="text-align:center;padding:2rem;"><span class="spinner"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="/js/i18n.js"></script>
+<script src="/js/main.js"></script>
+<script>
+  requireAuth();
+
+  function requireAuth() {
+    const token = localStorage.getItem('w3s_admin_token');
+    if (!token) { window.location.href = '/admin/login.html'; return; }
+    const user = JSON.parse(localStorage.getItem('w3s_admin_user') || '{}');
+    document.getElementById('admin-email').textContent = user.email || '—';
+  }
+
+  function logout() {
+    localStorage.removeItem('w3s_admin_token');
+    localStorage.removeItem('w3s_admin_user');
+    window.location.href = '/admin/login.html';
+  }
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  function getAuthHeaders() {
+    return { 'Authorization': 'Bearer ' + localStorage.getItem('w3s_admin_token') };
+  }
+
+  async function apiAuthGet(endpoint, params = {}) {
+    const qs  = new URLSearchParams(params).toString();
+    const url = '/api' + endpoint + (qs ? '?' + qs : '');
+    const res = await fetch(url, { headers: getAuthHeaders() });
+    return res.json();
+  }
+
+  const STATUS_BADGE = {
+    pending:  '<span class="badge badge-medium">⏳ Pending</span>',
+    verified: '<span class="badge badge-safe">✅ Verified</span>',
+    rejected: '<span class="badge badge-unknown">❌ Rejected</span>',
+    resolved: '<span class="badge badge-safe">✔ Resolved</span>'
+  };
+
+  async function loadDashboard() {
+    try {
+      const res = await apiAuthGet('/admin/stats');
+      if (res.success) {
+        document.getElementById('dash-total-reports').textContent = res.data.totalReports;
+        document.getElementById('dash-pending').textContent       = res.data.pendingReports;
+        document.getElementById('dash-fraud').textContent         = res.data.totalFraudEntries;
+        document.getElementById('dash-users').textContent         = res.data.totalUsers;
+
+        const tbody = document.getElementById('recent-tbody');
+        if (!res.data.recentReports?.length) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:1.5rem;">No reports yet</td></tr>';
+          return;
+        }
+        tbody.innerHTML = res.data.recentReports.map(r => `
+          <tr>
+            <td>${W3S.escHtml(r.type)}</td>
+            <td style="font-family:monospace;font-size:0.82rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${W3S.escHtml(r.value)}</td>
+            <td>${STATUS_BADGE[r.status] || r.status}</td>
+            <td>${W3S.fmtDate(r.created_at)}</td>
+          </tr>
+        `).join('');
+      }
+    } catch (err) {
+      W3S.showToast('Failed to load dashboard: ' + err.message, 'error');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadDashboard);
+</script>
+</body>
+</html>

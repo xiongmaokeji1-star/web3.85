@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web3 Wallet Check — Web3 Security</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <style>
+    .w3-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 1000px; margin: 0 auto; }
+    @media (max-width: 768px) { .w3-layout { grid-template-columns: 1fr; } }
+    .check-panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.75rem; }
+    .chain-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.65rem; border-radius: 99px; font-size: 0.75rem; font-weight: 700; background: var(--purple-dim); border: 1px solid rgba(124,58,237,0.3); color: #a78bfa; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.75rem; }
+    .info-item { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.75rem; }
+    .info-item-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.3rem; }
+    .info-item-value { font-size: 0.875rem; color: var(--text); font-family: monospace; word-break: break-all; }
+    .safety-tips h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--cyan); }
+    .safety-tips ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .safety-tips li { font-size: 0.85rem; color: var(--text2); display: flex; gap: 0.5rem; }
+    .safety-tips li::before { content: '🔒'; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/home.html" class="nav-logo"><span class="nav-logo-icon">🛡</span><span>Web3 Security</span></a>
+  <div class="nav-links">
+    <a href="/home.html"           class="nav-link" data-i18n="nav.home">Home</a>
+    <a href="/detection.html"      class="nav-link" data-i18n="nav.detection">AI Detection</a>
+    <a href="/fraud-database.html" class="nav-link" data-i18n="nav.database">Fraud Database</a>
+    <a href="/web3-check.html"     class="nav-link active" data-i18n="nav.web3check">Web3 Check</a>
+    <a href="/report.html"         class="nav-link" data-i18n="nav.report">Report</a>
+    <a href="/about.html"          class="nav-link" data-i18n="nav.about">About</a>
+  </div>
+  <div class="nav-right">
+    <select class="lang-select" id="lang-select">
+      <option value="en">🌐 EN</option><option value="zh">中文</option>
+      <option value="th">ไทย</option><option value="vi">Tiếng Việt</option>
+      <option value="id">Bahasa</option><option value="km">ខ្មែរ</option>
+    </select>
+  </div>
+  <button class="nav-hamburger" id="nav-hamburger">☰</button>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="/home.html" class="nav-link">Home</a>
+  <a href="/detection.html" class="nav-link">AI Detection</a>
+  <a href="/fraud-database.html" class="nav-link">Fraud Database</a>
+  <a href="/web3-check.html" class="nav-link">Web3 Check</a>
+  <a href="/report.html" class="nav-link">Report</a>
+</div>
+
+<main class="main">
+  <section class="section">
+    <h1 class="section-title" data-i18n="web3.title">Web3 Wallet Detection</h1>
+    <p class="section-subtitle" data-i18n="web3.subtitle">Check wallet addresses, contracts or tokens for security risks</p>
+
+    <div class="w3-layout">
+      <!-- Input panel -->
+      <div class="check-panel">
+        <div class="tab-wrapper">
+          <div class="tabs" style="margin-bottom:1.25rem;">
+            <button class="tab-btn active" data-tab="w3-wallet"   data-i18n="web3.tab_wallet">Wallet</button>
+            <button class="tab-btn"        data-tab="w3-contract" data-i18n="web3.tab_contract">Contract</button>
+            <button class="tab-btn"        data-tab="w3-token"    data-i18n="web3.tab_token">Token</button>
+          </div>
+
+          <div id="w3-wallet" class="tab-panel active">
+            <div class="form-group">
+              <label class="form-label" data-i18n="web3.tab_wallet">Wallet Address</label>
+              <input type="text" class="form-control" id="wallet-input"
+                data-i18n-placeholder="web3.placeholder_wallet"
+                placeholder="0x… or bc1…" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Chain (optional)</label>
+              <select class="form-control" id="wallet-chain">
+                <option value="">Auto-detect</option>
+                <option value="ETH">Ethereum (ETH)</option>
+                <option value="BTC">Bitcoin (BTC)</option>
+                <option value="BSC">BNB Smart Chain</option>
+                <option value="MATIC">Polygon (MATIC)</option>
+                <option value="SOL">Solana (SOL)</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="checkWallet()">
+              🔍 <span data-i18n="web3.btn_check">Check</span>
+            </button>
+          </div>
+
+          <div id="w3-contract" class="tab-panel">
+            <div class="form-group">
+              <label class="form-label" data-i18n="web3.tab_contract">Contract Address</label>
+              <input type="text" class="form-control" id="contract-input"
+                data-i18n-placeholder="web3.placeholder_contract"
+                placeholder="0x1234…" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Chain</label>
+              <select class="form-control" id="contract-chain">
+                <option value="ETH">Ethereum (ETH)</option>
+                <option value="BSC">BNB Smart Chain</option>
+                <option value="MATIC">Polygon (MATIC)</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="checkContract()">
+              🔍 <span data-i18n="web3.btn_check">Check</span>
+            </button>
+          </div>
+
+          <div id="w3-token" class="tab-panel">
+            <div class="form-group">
+              <label class="form-label" data-i18n="web3.tab_token">Token Symbol</label>
+              <input type="text" class="form-control" id="token-symbol"
+                data-i18n-placeholder="web3.placeholder_token"
+                placeholder="SAFEMOON" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contract Address (optional)</label>
+              <input type="text" class="form-control" id="token-contract" placeholder="0x…" />
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="checkToken()">
+              🔍 <span data-i18n="web3.btn_check">Check</span>
+            </button>
+          </div>
+
+          <!-- Result -->
+          <div class="result-box" id="w3-result">
+            <div class="result-risk-row">
+              <span class="result-risk-label">Status</span>
+              <span class="badge" id="w3-badge">—</span>
+            </div>
+            <div class="info-grid" id="w3-info-grid"></div>
+            <div class="result-advice" id="w3-advice" style="margin-top:0.75rem;"></div>
+            <button class="btn btn-outline btn-sm" style="margin-top:0.75rem;" id="w3-report-btn" onclick="reportFromResult()">
+              📢 Report This Address
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Safety tips -->
+      <div style="display:flex;flex-direction:column;gap:1.5rem;">
+        <div class="check-panel safety-tips">
+          <h3>🛡 Web3 Safety Tips</h3>
+          <ul>
+            <li>Never share your seed phrase or private key with anyone</li>
+            <li>Always verify contract addresses on official project websites</li>
+            <li>Check token approval limits — revoke unnecessary permissions</li>
+            <li>Use hardware wallets for large holdings</li>
+            <li>Be wary of tokens that promise guaranteed returns</li>
+            <li>Check if you can sell a token before buying (honeypot test)</li>
+            <li>Verify NFT contracts before minting or buying</li>
+            <li>Use multiple wallets — separate trading from storage</li>
+          </ul>
+        </div>
+
+        <div class="check-panel">
+          <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:0.75rem;color:var(--cyan);">⚠️ Red Flags</h3>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;">
+            <div class="alert alert-error">Anonymous team with no public profiles</div>
+            <div class="alert alert-error">Locked liquidity for very short periods only</div>
+            <div class="alert alert-error">Contract functions allowing owners to blacklist holders</div>
+            <div class="alert alert-error">Extremely high transaction taxes (&gt;10%)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">© 2025 Web3 Security Platform</footer>
+<div id="toast-container"></div>
+<script src="/js/i18n.js"></script>
+<script src="/js/main.js"></script>
+<script>
+  let _lastAddress = '';
+
+  const STATUS_ADVICE = {
+    DANGER:  '⛔ This address has been flagged in our fraud database. Do NOT send funds to or interact with this address.',
+    SAFE:    '✅ Not found in our fraud database. Always do your own research before transacting.',
+    UNKNOWN: '⚠️ Not found in our database. This does not guarantee safety — proceed with caution.'
+  };
+
+  function showW3Result(data) {
+    const status = data.status || 'UNKNOWN';
+    const cls    = status === 'DANGER' ? 'danger' : status === 'SAFE' ? 'safe' : 'unknown';
+    const badge  = document.getElementById('w3-badge');
+    badge.className = `badge badge-${cls}`;
+    badge.textContent = status;
+
+    const infoItems = [];
+    if (data.address)   infoItems.push(['Address', data.address]);
+    if (data.chain)     infoItems.push(['Chain',   data.chain]);
+    if (data.symbol)    infoItems.push(['Symbol',  data.symbol]);
+    if (data.hostname)  infoItems.push(['Host',    data.hostname]);
+    if (data.checkedAt) infoItems.push(['Checked', W3S.fmtDate(data.checkedAt)]);
+
+    document.getElementById('w3-info-grid').innerHTML = infoItems.map(([l, v]) => `
+      <div class="info-item">
+        <div class="info-item-label">${W3S.escHtml(l)}</div>
+        <div class="info-item-value">${W3S.escHtml(v)}</div>
+      </div>
+    `).join('');
+
+    document.getElementById('w3-advice').textContent = STATUS_ADVICE[status] || STATUS_ADVICE.UNKNOWN;
+    document.getElementById('w3-result').classList.add('show');
+    _lastAddress = data.address || data.symbol || '';
+  }
+
+  async function checkWallet() {
+    const address = document.getElementById('wallet-input').value.trim();
+    const chain   = document.getElementById('wallet-chain').value;
+    if (!address) { W3S.showToast('Please enter a wallet address', 'error'); return; }
+    await runW3Check(() => W3S.apiPost('/web3/wallet', { address, chain }));
+  }
+
+  async function checkContract() {
+    const address = document.getElementById('contract-input').value.trim();
+    const chain   = document.getElementById('contract-chain').value;
+    if (!address) { W3S.showToast('Please enter a contract address', 'error'); return; }
+    await runW3Check(() => W3S.apiPost('/web3/contract', { address, chain }));
+  }
+
+  async function checkToken() {
+    const symbol          = document.getElementById('token-symbol').value.trim();
+    const contractAddress = document.getElementById('token-contract').value.trim();
+    if (!symbol && !contractAddress) { W3S.showToast('Please enter a token symbol or contract address', 'error'); return; }
+    await runW3Check(() => W3S.apiPost('/web3/token', { symbol, contractAddress }));
+  }
+
+  async function runW3Check(fn) {
+    document.getElementById('w3-result').classList.remove('show');
+    try {
+      const res = await fn();
+      if (res.success) showW3Result(res.data);
+      else W3S.showToast(res.message || 'Check failed', 'error');
+    } catch (err) {
+      W3S.showToast('Error: ' + err.message, 'error');
+    }
+  }
+
+  function reportFromResult() {
+    window.location.href = `/report.html?type=wallet&value=${encodeURIComponent(_lastAddress)}`;
+  }
+</script>
+</body>
+</html>

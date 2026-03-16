@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Report a Scam — Web3 Security</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <style>
+    .report-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; max-width: 900px; margin: 0 auto; }
+    @media (max-width: 768px) { .report-layout { grid-template-columns: 1fr; } }
+    .report-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.75rem; }
+    .guideline { display: flex; gap: 0.6rem; align-items: flex-start; margin-bottom: 0.75rem; font-size: 0.875rem; color: var(--text2); }
+    .guideline-icon { flex-shrink: 0; font-size: 1rem; }
+    .steps-track { display: flex; flex-direction: column; gap: 0; }
+    .step-row { display: flex; gap: 0.75rem; align-items: flex-start; padding-bottom: 1.25rem; position: relative; }
+    .step-row:not(:last-child)::after { content:''; position:absolute; left:15px; top:32px; bottom:0; width:1px; background:var(--border); }
+    .step-dot { width: 32px; height: 32px; border-radius: 50%; background: var(--cyan-dim); border: 1px solid var(--border2); color: var(--cyan); font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step-row-body { padding-top: 0.25rem; }
+    .step-row-title { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+    .step-row-desc  { font-size: 0.8rem; color: var(--text2); }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/home.html" class="nav-logo"><span class="nav-logo-icon">🛡</span><span>Web3 Security</span></a>
+  <div class="nav-links">
+    <a href="/home.html"           class="nav-link" data-i18n="nav.home">Home</a>
+    <a href="/detection.html"      class="nav-link" data-i18n="nav.detection">AI Detection</a>
+    <a href="/fraud-database.html" class="nav-link" data-i18n="nav.database">Fraud Database</a>
+    <a href="/web3-check.html"     class="nav-link" data-i18n="nav.web3check">Web3 Check</a>
+    <a href="/report.html"         class="nav-link active" data-i18n="nav.report">Report</a>
+    <a href="/about.html"          class="nav-link" data-i18n="nav.about">About</a>
+  </div>
+  <div class="nav-right">
+    <select class="lang-select" id="lang-select">
+      <option value="en">🌐 EN</option><option value="zh">中文</option>
+      <option value="th">ไทย</option><option value="vi">Tiếng Việt</option>
+      <option value="id">Bahasa</option><option value="km">ខ្មែរ</option>
+    </select>
+  </div>
+  <button class="nav-hamburger" id="nav-hamburger">☰</button>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="/home.html" class="nav-link">Home</a>
+  <a href="/detection.html" class="nav-link">AI Detection</a>
+  <a href="/fraud-database.html" class="nav-link">Fraud Database</a>
+  <a href="/web3-check.html" class="nav-link">Web3 Check</a>
+  <a href="/report.html" class="nav-link">Report</a>
+</div>
+
+<main class="main">
+  <section class="section">
+    <h1 class="section-title" data-i18n="report.title">Report a Scam</h1>
+    <p class="section-subtitle" data-i18n="report.subtitle">Your report helps protect more users</p>
+
+    <div class="report-layout">
+      <!-- Form -->
+      <div class="report-card">
+        <div id="report-success" class="alert alert-success" style="display:none;">
+          ✅ <span data-i18n="report.success">Report submitted! Thank you for your contribution.</span>
+        </div>
+        <div id="report-error" class="alert alert-error" style="display:none;">
+          ❌ <span data-i18n="report.error">Submission failed, please try again</span>
+        </div>
+
+        <form id="report-form" onsubmit="submitReport(event)">
+          <div class="form-group">
+            <label class="form-label" data-i18n="report.label_type">Report Type</label>
+            <select class="form-control" id="rep-type" required>
+              <option value="url">🔗 URL / Website</option>
+              <option value="wallet">💰 Wallet Address</option>
+              <option value="phone">📞 Phone Number</option>
+              <option value="email">📧 Email Address</option>
+              <option value="contract">📄 Smart Contract</option>
+              <option value="token">🪙 Token / Coin</option>
+              <option value="other">⚠️ Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="report.label_value">Reported Value <span style="color:var(--red)">*</span></label>
+            <input type="text" class="form-control" id="rep-value" required
+              data-i18n-placeholder="report.placeholder_value"
+              placeholder="Enter suspicious URL, wallet, phone, etc." />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="report.label_description">Description</label>
+            <textarea class="form-control" id="rep-description" rows="5"
+              data-i18n-placeholder="report.placeholder_description"
+              placeholder="Describe the scam you encountered…"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="report.label_email">Contact Email (optional)</label>
+            <input type="email" class="form-control" id="rep-email"
+              data-i18n-placeholder="report.placeholder_email"
+              placeholder="your@email.com" />
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%;" id="rep-submit">
+            📢 <span data-i18n="report.btn_submit">Submit Report</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Sidebar -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem;">
+        <div class="report-card">
+          <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:1rem;color:var(--cyan);">📋 Reporting Guidelines</h3>
+          <div class="guideline"><span class="guideline-icon">✅</span><span>Provide as much detail as possible to help our moderation team verify your report quickly.</span></div>
+          <div class="guideline"><span class="guideline-icon">✅</span><span>Include exact URLs, wallet addresses, or phone numbers — partial information may delay verification.</span></div>
+          <div class="guideline"><span class="guideline-icon">✅</span><span>Add a contact email if you'd like to be notified when your report is reviewed.</span></div>
+          <div class="guideline"><span class="guideline-icon">❌</span><span>Do not submit false reports — this undermines the integrity of our database.</span></div>
+        </div>
+
+        <div class="report-card">
+          <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:1rem;color:var(--cyan);">⏱ What Happens Next</h3>
+          <div class="steps-track">
+            <div class="step-row">
+              <div class="step-dot">1</div>
+              <div class="step-row-body">
+                <div class="step-row-title">Received</div>
+                <div class="step-row-desc">Your report is immediately stored with a "pending" status.</div>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-dot">2</div>
+              <div class="step-row-body">
+                <div class="step-row-title">Under Review</div>
+                <div class="step-row-desc">Our team verifies the report within 24–48 hours.</div>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-dot">3</div>
+              <div class="step-row-body">
+                <div class="step-row-title">Added to Database</div>
+                <div class="step-row-desc">Verified reports are added to our public fraud database.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">© 2025 Web3 Security Platform</footer>
+<div id="toast-container"></div>
+<script src="/js/i18n.js"></script>
+<script src="/js/main.js"></script>
+<script>
+  // Pre-fill from URL params (e.g. from detection page)
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('type'))  document.getElementById('rep-type').value  = params.get('type');
+  if (params.get('value')) document.getElementById('rep-value').value = params.get('value');
+
+  async function submitReport(e) {
+    e.preventDefault();
+    const btn = document.getElementById('rep-submit');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Submitting…';
+
+    document.getElementById('report-success').style.display = 'none';
+    document.getElementById('report-error').style.display   = 'none';
+
+    const payload = {
+      type:         document.getElementById('rep-type').value,
+      value:        document.getElementById('rep-value').value.trim(),
+      description:  document.getElementById('rep-description').value.trim(),
+      contactEmail: document.getElementById('rep-email').value.trim(),
+      lang:         window.i18n?.currentLang() || 'en'
+    };
+
+    try {
+      const res = await W3S.apiPost('/reports', payload);
+      if (res.success) {
+        document.getElementById('report-success').style.display = 'flex';
+        document.getElementById('report-form').reset();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        document.getElementById('report-error').style.display = 'flex';
+      }
+    } catch {
+      document.getElementById('report-error').style.display = 'flex';
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '📢 <span data-i18n="report.btn_submit">Submit Report</span>';
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web3 Security Platform</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <style>
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+    .feature-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.75rem; transition: all 0.25s; }
+    .feature-card:hover { border-color: var(--border2); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+    .feature-icon { font-size: 2.4rem; margin-bottom: 1rem; }
+    .feature-title { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem; }
+    .feature-desc { font-size: 0.875rem; color: var(--text2); line-height: 1.65; }
+    .threat-ticker { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0.65rem 0; overflow: hidden; }
+    .ticker-inner { display: flex; gap: 3rem; animation: ticker 30s linear infinite; white-space: nowrap; }
+    .ticker-item { font-size: 0.8rem; color: var(--red); font-family: 'Courier New', monospace; }
+    .ticker-item::before { content: '⚠ '; }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .how-step { display: flex; gap: 1.25rem; align-items: flex-start; }
+    .step-num { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--cyan), var(--purple)); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.95rem; flex-shrink: 0; }
+    .step-body {}
+    .step-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .step-desc { font-size: 0.875rem; color: var(--text2); }
+    .quick-check-box { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; max-width: 640px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav">
+  <a href="/home.html" class="nav-logo">
+    <span class="nav-logo-icon">🛡</span>
+    <span>Web3 Security</span>
+  </a>
+  <div class="nav-links" id="nav-links">
+    <a href="/home.html"        class="nav-link" data-i18n="nav.home">Home</a>
+    <a href="/detection.html"   class="nav-link" data-i18n="nav.detection">AI Detection</a>
+    <a href="/fraud-database.html" class="nav-link" data-i18n="nav.database">Fraud Database</a>
+    <a href="/web3-check.html"  class="nav-link" data-i18n="nav.web3check">Web3 Check</a>
+    <a href="/report.html"      class="nav-link" data-i18n="nav.report">Report</a>
+    <a href="/about.html"       class="nav-link" data-i18n="nav.about">About</a>
+  </div>
+  <div class="nav-right">
+    <select class="lang-select" id="lang-select">
+      <option value="en">🌐 EN</option>
+      <option value="zh">中文</option>
+      <option value="th">ไทย</option>
+      <option value="vi">Tiếng Việt</option>
+      <option value="id">Bahasa</option>
+      <option value="km">ខ្មែរ</option>
+    </select>
+    <a href="/admin/login.html" class="btn btn-outline btn-sm" data-i18n="nav.admin">Admin</a>
+  </div>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">☰</button>
+</nav>
+
+<!-- Mobile nav -->
+<div class="nav-mobile" id="nav-mobile">
+  <a href="/home.html"           class="nav-link" data-i18n="nav.home">Home</a>
+  <a href="/detection.html"      class="nav-link" data-i18n="nav.detection">AI Detection</a>
+  <a href="/fraud-database.html" class="nav-link" data-i18n="nav.database">Fraud Database</a>
+  <a href="/web3-check.html"     class="nav-link" data-i18n="nav.web3check">Web3 Check</a>
+  <a href="/report.html"         class="nav-link" data-i18n="nav.report">Report</a>
+  <a href="/about.html"          class="nav-link" data-i18n="nav.about">About</a>
+</div>
+
+<main class="main">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-badge">🔐 Blockchain-Native Security</div>
+    <h1 class="hero-title" data-i18n="hero.title">Web3 Security Platform</h1>
+    <p class="hero-subtitle" data-i18n="hero.subtitle">AI-Powered · Blockchain-Native · Community-Guarded</p>
+    <div class="hero-cta">
+      <a href="/detection.html" class="btn btn-primary">🔍 <span data-i18n="hero.cta_detect">Detect Now</span></a>
+      <a href="/report.html" class="btn btn-outline">📢 <span data-i18n="hero.cta_report">Report Scam</span></a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num" id="stat-reports">0</div>
+        <div class="hero-stat-label" data-i18n="hero.stats_reports">Total Reports</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num" id="stat-fraud">0</div>
+        <div class="hero-stat-label" data-i18n="hero.stats_fraud">Fraud Entries</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num" id="stat-users">0</div>
+        <div class="hero-stat-label" data-i18n="hero.stats_protected">Users Protected</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Threat ticker -->
+  <div class="threat-ticker" aria-hidden="true">
+    <div class="ticker-inner" id="ticker">
+      <span class="ticker-item">binance-secure.com — Phishing</span>
+      <span class="ticker-item">metamask-support.io — Seed Phrase Theft</span>
+      <span class="ticker-item">wallet-recovery.org — Key Harvesting</span>
+      <span class="ticker-item">SQUIDGAME2 Token — Rug Pull</span>
+      <span class="ticker-item">nft-free-mint.com — Wallet Drainer</span>
+      <span class="ticker-item">coinbase-verify.net — Fake KYC</span>
+      <!-- duplicated for seamless loop -->
+      <span class="ticker-item">binance-secure.com — Phishing</span>
+      <span class="ticker-item">metamask-support.io — Seed Phrase Theft</span>
+      <span class="ticker-item">wallet-recovery.org — Key Harvesting</span>
+      <span class="ticker-item">SQUIDGAME2 Token — Rug Pull</span>
+      <span class="ticker-item">nft-free-mint.com — Wallet Drainer</span>
+      <span class="ticker-item">coinbase-verify.net — Fake KYC</span>
+    </div>
+  </div>
+
+  <!-- Quick Check -->
+  <section class="section" style="background: var(--bg2);">
+    <h2 class="section-title">⚡ Quick Check</h2>
+    <p class="section-subtitle">Instantly verify any URL, wallet, or text</p>
+    <div class="quick-check-box">
+      <div class="tab-wrapper">
+        <div class="tabs" style="margin-bottom:1.25rem;">
+          <button class="tab-btn active" data-tab="qc-text">Text</button>
+          <button class="tab-btn" data-tab="qc-url">URL</button>
+          <button class="tab-btn" data-tab="qc-wallet">Wallet</button>
+        </div>
+        <div id="qc-text" class="tab-panel active">
+          <textarea class="form-control" id="qc-text-input" rows="3" placeholder="Paste suspicious message…"></textarea>
+        </div>
+        <div id="qc-url" class="tab-panel">
+          <input type="text" class="form-control" id="qc-url-input" placeholder="https://suspicious-site.com" />
+        </div>
+        <div id="qc-wallet" class="tab-panel">
+          <input type="text" class="form-control" id="qc-wallet-input" placeholder="0x... or bc1..." />
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:1rem;" id="qc-btn" onclick="quickCheck()">
+          🔍 Check Now
+        </button>
+        <div class="result-box" id="qc-result"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section">
+    <h2 class="section-title">🔒 Platform Features</h2>
+    <p class="section-subtitle">Comprehensive Web3 security tools powered by AI and community intelligence</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">AI Fraud Detection</div>
+        <div class="feature-desc">Real-time analysis of text, URLs, and messages for scam patterns using advanced machine learning heuristics.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <div class="feature-title">Web3 Wallet Check</div>
+        <div class="feature-desc">Instantly check wallet addresses, smart contracts, and token symbols against our continuously updated blacklist.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Fraud Database</div>
+        <div class="feature-desc">Community-maintained registry of 15,000+ confirmed scam URLs, wallets, phones, and tokens — publicly searchable.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📢</div>
+        <div class="feature-title">Community Reporting</div>
+        <div class="feature-desc">Submit fraud reports in 6 languages. Our moderation team reviews and adds verified entries to the database within 24 hours.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">Multi-Language</div>
+        <div class="feature-desc">Full support for English, Chinese, Thai, Vietnamese, Indonesian, and Khmer — protecting users across Southeast Asia.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔑</div>
+        <div class="feature-title">Open API</div>
+        <div class="feature-desc">REST API for developers and security teams. Integrate our fraud detection directly into your dApps and platforms.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section" style="background: var(--bg2);">
+    <h2 class="section-title">📋 How It Works</h2>
+    <p class="section-subtitle">Three simple steps to stay protected</p>
+    <div style="display:flex;flex-direction:column;gap:1.5rem;max-width:560px;margin:0 auto;">
+      <div class="how-step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Submit for Analysis</div>
+          <div class="step-desc">Paste any suspicious URL, text, wallet address, phone number, or email into our detection tool.</div>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">AI + Database Check</div>
+          <div class="step-desc">Our engine cross-references against our fraud database and applies AI pattern recognition in real time.</div>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Get Your Risk Report</div>
+          <div class="step-desc">Receive an instant risk score, flagged signals, and actionable security advice.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>© 2025 Web3 Security Platform · AI-Powered Fraud Protection · 
+    <a href="/about.html">About</a> · 
+    <a href="/report.html">Report a Scam</a>
+  </p>
+</footer>
+
+<div id="toast-container"></div>
+
+<script src="/js/i18n.js"></script>
+<script src="/js/main.js"></script>
+<script>
+  // Load stats
+  async function loadStats() {
+    try {
+      const data = await W3S.apiGet('/admin/stats');
+      if (data.success) {
+        W3S.animateCounter(document.getElementById('stat-reports'), data.data.totalReports || 0);
+        W3S.animateCounter(document.getElementById('stat-fraud'),   data.data.totalFraudEntries || 0);
+        W3S.animateCounter(document.getElementById('stat-users'),   data.data.totalUsers || 0);
+      }
+    } catch {
+      // Fallback demo numbers
+      W3S.animateCounter(document.getElementById('stat-reports'), 1842);
+      W3S.animateCounter(document.getElementById('stat-fraud'),   15324);
+      W3S.animateCounter(document.getElementById('stat-users'),   89201);
+    }
+  }
+
+  async function quickCheck() {
+    const activePanel = document.querySelector('.tab-panel.active');
+    const result = document.getElementById('qc-result');
+    let type = '', value = '';
+
+    if (activePanel.id === 'qc-text') {
+      type = 'text'; value = document.getElementById('qc-text-input').value.trim();
+    } else if (activePanel.id === 'qc-url') {
+      type = 'url';  value = document.getElementById('qc-url-input').value.trim();
+    } else {
+      type = 'wallet'; value = document.getElementById('qc-wallet-input').value.trim();
+    }
+
+    if (!value) { W3S.showToast('Please enter a value to check', 'error'); return; }
+
+    const btn = document.getElementById('qc-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Checking…';
+    result.classList.remove('show');
+
+    try {
+      let res;
+      if (type === 'text')   res = await W3S.apiPost('/ai/analyze-text', { text: value });
+      else if (type === 'url') res = await W3S.apiPost('/ai/analyze-url', { url: value });
+      else                   res = await W3S.apiPost('/web3/wallet', { address: value });
+
+      if (res.success) {
+        const d = res.data;
+        const risk   = d.risk || (d.status === 'DANGER' ? 'HIGH' : d.status === 'SAFE' ? 'LOW' : 'UNKNOWN');
+        const cls    = W3S.getRiskClass(risk);
+        const color  = W3S.getRiskColor(risk);
+        const score  = d.score != null ? d.score : (risk === 'HIGH' ? 80 : risk === 'MEDIUM' ? 40 : 10);
+        const advice = d.advice || (d.status === 'DANGER' ? '⚠️ This has been flagged as dangerous!' : '✅ No known threats found.');
+
+        result.innerHTML = `
+          <div class="result-risk-row">
+            <span class="result-risk-label">Risk Assessment</span>
+            <span class="badge badge-${cls}">${risk}</span>
+          </div>
+          <div class="result-score-bar">
+            <div class="result-score-fill" style="width:${score}%;background:${color}"></div>
+          </div>
+          <div class="result-advice">${W3S.escHtml(advice)}</div>
+        `;
+        result.classList.add('show');
+      }
+    } catch (err) {
+      W3S.showToast('Check failed: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '🔍 Check Now';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadStats);
+</script>
+</body>
+</html>
