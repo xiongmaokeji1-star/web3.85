@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fraud Database — Web3 Security</title>
+  <link rel="stylesheet" href="/css/main.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/home.html" class="nav-logo"><span class="nav-logo-icon">🛡</span><span>Web3 Security</span></a>
+  <div class="nav-links">
+    <a href="/home.html"           class="nav-link" data-i18n="nav.home">Home</a>
+    <a href="/detection.html"      class="nav-link" data-i18n="nav.detection">AI Detection</a>
+    <a href="/fraud-database.html" class="nav-link active" data-i18n="nav.database">Fraud Database</a>
+    <a href="/web3-check.html"     class="nav-link" data-i18n="nav.web3check">Web3 Check</a>
+    <a href="/report.html"         class="nav-link" data-i18n="nav.report">Report</a>
+    <a href="/about.html"          class="nav-link" data-i18n="nav.about">About</a>
+  </div>
+  <div class="nav-right">
+    <select class="lang-select" id="lang-select">
+      <option value="en">🌐 EN</option><option value="zh">中文</option>
+      <option value="th">ไทย</option><option value="vi">Tiếng Việt</option>
+      <option value="id">Bahasa</option><option value="km">ខ្មែរ</option>
+    </select>
+  </div>
+  <button class="nav-hamburger" id="nav-hamburger">☰</button>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="/home.html" class="nav-link">Home</a>
+  <a href="/detection.html" class="nav-link">AI Detection</a>
+  <a href="/fraud-database.html" class="nav-link">Fraud Database</a>
+  <a href="/web3-check.html" class="nav-link">Web3 Check</a>
+  <a href="/report.html" class="nav-link">Report</a>
+</div>
+
+<main class="main">
+  <section class="section">
+    <h1 class="section-title" data-i18n="frauddb.title">Fraud Database</h1>
+    <p class="section-subtitle" data-i18n="frauddb.subtitle">Publicly accessible registry of confirmed fraud entries</p>
+
+    <!-- Toolbar -->
+    <div class="table-toolbar" style="max-width:900px;margin:0 auto 1.25rem;">
+      <input type="text" class="form-control table-search" id="db-search"
+        data-i18n-placeholder="frauddb.search_placeholder"
+        placeholder="Search URLs, wallets, tokens…"
+        oninput="debounce(loadEntries, 400)()" />
+      <select class="form-control" style="max-width:160px;" id="db-type-filter" onchange="loadEntries()">
+        <option value="">All Types</option>
+        <option value="url">URL</option>
+        <option value="wallet">Wallet</option>
+        <option value="phone">Phone</option>
+        <option value="email">Email</option>
+        <option value="contract">Contract</option>
+        <option value="token">Token</option>
+      </select>
+      <a href="/report.html" class="btn btn-outline btn-sm">+ Report New</a>
+    </div>
+
+    <!-- Table -->
+    <div style="max-width:900px;margin:0 auto;">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="frauddb.col_type">Type</th>
+              <th data-i18n="frauddb.col_value">Value</th>
+              <th data-i18n="frauddb.col_severity">Severity</th>
+              <th data-i18n="frauddb.col_description">Description</th>
+              <th data-i18n="frauddb.col_date">Date</th>
+            </tr>
+          </thead>
+          <tbody id="db-tbody">
+            <tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted);">
+              <span class="spinner"></span>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="db-pagination"></div>
+      <p id="db-no-results" style="display:none;text-align:center;color:var(--muted);padding:2rem;" data-i18n="common.no_results">No records found</p>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">© 2025 Web3 Security Platform</footer>
+<div id="toast-container"></div>
+<script src="/js/i18n.js"></script>
+<script src="/js/main.js"></script>
+<script>
+  const TYPE_ICONS = { url:'🔗', wallet:'💰', phone:'📞', email:'📧', contract:'📄', token:'🪙', other:'⚠️' };
+  let currentPage = 1;
+  const PAGE_SIZE = 20;
+
+  // Simple debounce
+  function debounce(fn, ms) {
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+  }
+  const debouncedLoad = debounce(loadEntries, 400);
+
+  async function loadEntries(page = 1) {
+    currentPage = page;
+    const keyword = document.getElementById('db-search').value.trim();
+    const type    = document.getElementById('db-type-filter').value;
+
+    const tbody = document.getElementById('db-tbody');
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;"><span class="spinner"></span></td></tr>';
+
+    try {
+      const params = { page, limit: PAGE_SIZE };
+      if (keyword) params.keyword = keyword;
+      if (type)    params.type    = type;
+
+      const res = await W3S.apiGet('/fraud-db', params);
+
+      if (!res.success || !res.data.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted);" data-i18n="common.no_results">No records found</td></tr>';
+        renderPagination(0, page);
+        return;
+      }
+
+      tbody.innerHTML = res.data.map(e => `
+        <tr>
+          <td><span style="font-size:1.1rem">${TYPE_ICONS[e.type] || '⚠️'}</span> ${W3S.escHtml(e.type)}</td>
+          <td>
+            <span style="font-family:monospace;font-size:0.82rem;color:var(--text);">${W3S.escHtml(e.value)}</span>
+            <button class="btn btn-sm" style="padding:0.1rem 0.4rem;margin-left:0.4rem;background:none;border:none;cursor:pointer;color:var(--muted);"
+              onclick="W3S.copyText('${W3S.escHtml(e.value)}')">📋</button>
+          </td>
+          <td>${W3S.severityBadge(e.severity)}</td>
+          <td style="max-width:240px;white-space:normal;">${W3S.escHtml(e.description || '—')}</td>
+          <td style="white-space:nowrap;">${W3S.fmtDate(e.created_at)}</td>
+        </tr>
+      `).join('');
+
+      renderPagination(res.total, page);
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--red);">Error: ${W3S.escHtml(err.message)}</td></tr>`;
+    }
+  }
+
+  function renderPagination(total, page) {
+    const pages = Math.ceil(total / PAGE_SIZE);
+    const el = document.getElementById('db-pagination');
+    if (pages <= 1) { el.innerHTML = ''; return; }
+
+    let html = '';
+    if (page > 1) html += `<button class="page-btn" onclick="loadEntries(${page - 1})">‹</button>`;
+    for (let i = Math.max(1, page - 2); i <= Math.min(pages, page + 2); i++) {
+      html += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="loadEntries(${i})">${i}</button>`;
+    }
+    if (page < pages) html += `<button class="page-btn" onclick="loadEntries(${page + 1})">›</button>`;
+    html += `<span style="color:var(--muted);font-size:0.8rem;margin-left:0.5rem;">${total} entries</span>`;
+    el.innerHTML = html;
+  }
+
+  document.getElementById('db-search').addEventListener('input', () => debouncedLoad(1));
+  document.addEventListener('DOMContentLoaded', () => loadEntries(1));
+</script>
+</body>
+</html>

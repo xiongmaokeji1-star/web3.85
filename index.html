@@ -372,8 +372,8 @@
 
   <!-- Brand -->
   <div class="brand">
-    <div class="brand-title">Web3 Portal</div>
-    <div class="brand-sub">Decentralized · Trustless · Open</div>
+    <div class="brand-title">Web3 Security</div>
+    <div class="brand-sub">AI-Powered · Blockchain-Native · Protected</div>
   </div>
 
   <!-- Mini blockchain -->
@@ -402,11 +402,11 @@
 
   <!-- Feature pills -->
   <div class="pills" id="pills">
-    <span class="pill" data-at="15">🔗 区块链</span>
-    <span class="pill" data-at="30">🔐 钱包连接</span>
-    <span class="pill" data-at="45">📡 节点同步</span>
-    <span class="pill" data-at="60">💎 DeFi 模块</span>
-    <span class="pill" data-at="75">🖼 NFT 引擎</span>
+    <span class="pill" data-at="15">🔒 区块链安全</span>
+    <span class="pill" data-at="30">🤖 AI 检测</span>
+    <span class="pill" data-at="45">📊 诈骗数据库</span>
+    <span class="pill" data-at="60">🔗 Web3 检测</span>
+    <span class="pill" data-at="75">🌐 多语言</span>
     <span class="pill" data-at="90">⚡ 完成加载</span>
   </div>
 </div>
@@ -414,12 +414,12 @@
 <!-- Done screen -->
 <div id="done-overlay">
   <div class="done-check">✓</div>
-  <div class="done-title">已连接 Web3 网络</div>
-  <button class="enter-btn" id="enter-btn" aria-label="进入 Web3 应用">进入应用 →</button>
+  <div class="done-title">已连接 Web3 安全网络</div>
+  <button class="enter-btn" id="enter-btn" aria-label="进入 Web3 安全平台">进入平台 →</button>
 </div>
 
 <!-- Footer -->
-<footer class="footer">Powered by Blockchain Technology &nbsp;|&nbsp; EVM Compatible</footer>
+<footer class="footer">Web3 Security Platform &nbsp;|&nbsp; AI-Powered Fraud Protection</footer>
 
 <script>
   /* ── Starfield ──────────────────────────────────────────────── */
@@ -533,9 +533,8 @@
     /* Dispatch a custom event so a parent application can intercept the navigation. */
     window.dispatchEvent(new CustomEvent('web3:ready'));
 
-    /* Navigate to the main app. Change APP_URL to your actual application route.
-       Falls back gracefully by simply fading out the overlay when no URL is set. */
-    const APP_URL = '';
+    /* Navigate to the main app. */
+    const APP_URL = '/home.html';
     setTimeout(() => {
       if (APP_URL) {
         window.location.href = APP_URL;

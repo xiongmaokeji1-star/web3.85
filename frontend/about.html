@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Web3 Security Platform</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <style>
+    .about-hero { max-width: 720px; margin: 0 auto; text-align: center; }
+    .team-grid  { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; max-width: 800px; margin: 0 auto; }
+    .team-card  { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; }
+    .team-avatar { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--cyan), var(--purple)); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 0.75rem; }
+    .team-name  { font-weight: 700; margin-bottom: 0.25rem; }
+    .team-role  { font-size: 0.8rem; color: var(--muted); }
+    .tech-list  { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+    .tech-badge { padding: 0.35rem 0.85rem; border-radius: 99px; background: var(--cyan-dim); border: 1px solid var(--border2); color: var(--cyan); font-size: 0.8rem; font-weight: 600; }
+    .faq-item   { border-bottom: 1px solid var(--border); padding: 1.25rem 0; cursor: pointer; }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 0.95rem; }
+    .faq-a { display: none; font-size: 0.875rem; color: var(--text2); line-height: 1.65; margin-top: 0.75rem; }
+    .faq-item.open .faq-a  { display: block; }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+    .faq-arrow { transition: transform 0.2s; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/home.html" class="nav-logo"><span class="nav-logo-icon">🛡</span><span>Web3 Security</span></a>
+  <div class="nav-links">
+    <a href="/home.html"           class="nav-link" data-i18n="nav.home">Home</a>
+    <a href="/detection.html"      class="nav-link" data-i18n="nav.detection">AI Detection</a>
+    <a href="/fraud-database.html" class="nav-link" data-i18n="nav.database">Fraud Database</a>
+    <a href="/web3-check.html"     class="nav-link" data-i18n="nav.web3check">Web3 Check</a>
+    <a href="/report.html"         class="nav-link" data-i18n="nav.report">Report</a>
+    <a href="/about.html"          class="nav-link active" data-i18n="nav.about">About</a>
+  </div>
+  <div class="nav-right">
+    <select class="lang-select" id="lang-select">
+      <option value="en">🌐 EN</option><option value="zh">中文</option>
+      <option value="th">ไทย</option><option value="vi">Tiếng Việt</option>
+      <option value="id">Bahasa</option><option value="km">ខ្មែរ</option>
+    </select>
+  </div>
+  <button class="nav-hamburger" id="nav-hamburger">☰</button>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="/home.html" class="nav-link">Home</a>
+  <a href="/detection.html" class="nav-link">AI Detection</a>
+  <a href="/fraud-database.html" class="nav-link">Fraud Database</a>
+  <a href="/web3-check.html" class="nav-link">Web3 Check</a>
+  <a href="/report.html" class="nav-link">Report</a>
+</div>
+
+<main class="main">
+
+  <!-- Mission -->
+  <section class="section">
+    <div class="about-hero">
+      <div class="hero-badge">🌏 Our Mission</div>
+      <h1 class="section-title" style="margin-bottom:1rem;">Protecting the Web3 Ecosystem</h1>
+      <p style="color:var(--text2);line-height:1.8;">
+        Web3 Security Platform is a community-driven initiative dedicated to detecting and exposing crypto fraud, phishing attacks, and Web3 scams across Southeast Asia and beyond. We combine AI-powered analysis with a continuously updated community fraud database to keep users safe in the decentralized world.
+      </p>
+    </div>
+  </section>
+
+  <!-- Tech stack -->
+  <section class="section" style="background:var(--bg2);">
+    <h2 class="section-title">🛠 Technology Stack</h2>
+    <p class="section-subtitle">Built on modern, open-source technologies</p>
+    <div class="tech-list">
+      <span class="tech-badge">Node.js</span>
+      <span class="tech-badge">Express</span>
+      <span class="tech-badge">MySQL</span>
+      <span class="tech-badge">AI Pattern Matching</span>
+      <span class="tech-badge">Docker</span>
+      <span class="tech-badge">REST API</span>
+      <span class="tech-badge">JWT Auth</span>
+      <span class="tech-badge">EVM Compatible</span>
+      <span class="tech-badge">Multi-Language i18n</span>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="section">
+    <h2 class="section-title">📊 Platform Statistics</h2>
+    <div class="grid-4" style="max-width:800px;margin:0 auto;">
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem;font-weight:800;color:var(--cyan);" id="about-reports">—</div>
+        <div style="font-size:0.8rem;color:var(--muted);">Reports Submitted</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem;font-weight:800;color:var(--cyan);" id="about-fraud">—</div>
+        <div style="font-size:0.8rem;color:var(--muted);">Fraud Entries</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem;font-weight:800;color:var(--cyan);">6</div>
+        <div style="font-size:0.8rem;color:var(--muted);">Languages</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem;font-weight:800;color:var(--cyan);">24/7</div>
+        <div style="font-size:0.8rem;color:var(--muted);">Monitoring</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" style="background:var(--bg2);">
+    <h2 class="section-title">❓ Frequently Asked Questions</h2>
+    <div style="max-width:640px;margin:0 auto;" class="card">
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Is this platform free to use? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">Yes, all public features — including AI detection, fraud database search, and scam reporting — are completely free for everyone.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">How is the fraud database maintained? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">Entries come from community reports, on-chain analysis, and partnerships with security researchers. All reports are manually reviewed by our moderation team before being published.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">How accurate is the AI detection? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">Our AI uses rule-based pattern matching and heuristics tuned specifically for Web3/crypto scams. It detects the most common patterns. Always combine AI results with your own research.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Can I use the API for my project? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">Yes! We offer a public REST API. See the <code>/api</code> endpoints documentation for available routes. Rate limits apply to prevent abuse.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">How do I deploy this platform myself? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">The platform supports one-click Docker deployment. Copy the <code>.env.example</code> to <code>.env</code>, configure your secrets, then run <code>docker compose up -d</code>.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  © 2025 Web3 Security Platform · Open Source · Community Driven ·
+  <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+</footer>
+<div id="toast-container"></div>
+<script src="/js/i18n.js"></script>
+<script src="/js/main.js"></script>
+<script>
+  function toggleFaq(el) { el.classList.toggle('open'); }
+
+  async function loadStats() {
+    try {
+      const res = await W3S.apiGet('/admin/stats');
+      if (res.success) {
+        document.getElementById('about-reports').textContent = (res.data.totalReports || 0).toLocaleString();
+        document.getElementById('about-fraud').textContent   = (res.data.totalFraudEntries || 0).toLocaleString();
+      }
+    } catch { /* ignore */ }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadStats);
+</script>
+</body>
+</html>

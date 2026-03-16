@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Fraud Detection — Web3 Security</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <style>
+    .detect-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 1100px; margin: 0 auto; }
+    @media (max-width: 768px) { .detect-layout { grid-template-columns: 1fr; } }
+    .detect-panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.75rem; }
+    .panel-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
+    .tips-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+    .tips-list li { display: flex; gap: 0.6rem; font-size: 0.875rem; color: var(--text2); line-height: 1.5; }
+    .tips-list li::before { content: '▸'; color: var(--cyan); flex-shrink: 0; }
+    .history-item { padding: 0.75rem; border-radius: var(--radius-sm); background: var(--bg2); border: 1px solid var(--border); margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; cursor: pointer; transition: border-color 0.2s; }
+    .history-item:hover { border-color: var(--border2); }
+    .history-value { font-size: 0.82rem; color: var(--text2); font-family: monospace; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .score-ring { position: relative; width: 100px; height: 100px; margin: 0 auto 1rem; }
+    .score-ring svg { transform: rotate(-90deg); }
+    .score-ring-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: 800; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/home.html" class="nav-logo"><span class="nav-logo-icon">🛡</span><span>Web3 Security</span></a>
+  <div class="nav-links">
+    <a href="/home.html"           class="nav-link" data-i18n="nav.home">Home</a>
+    <a href="/detection.html"      class="nav-link active" data-i18n="nav.detection">AI Detection</a>
+    <a href="/fraud-database.html" class="nav-link" data-i18n="nav.database">Fraud Database</a>
+    <a href="/web3-check.html"     class="nav-link" data-i18n="nav.web3check">Web3 Check</a>
+    <a href="/report.html"         class="nav-link" data-i18n="nav.report">Report</a>
+    <a href="/about.html"          class="nav-link" data-i18n="nav.about">About</a>
+  </div>
+  <div class="nav-right">
+    <select class="lang-select" id="lang-select">
+      <option value="en">🌐 EN</option><option value="zh">中文</option>
+      <option value="th">ไทย</option><option value="vi">Tiếng Việt</option>
+      <option value="id">Bahasa</option><option value="km">ខ្មែរ</option>
+    </select>
+  </div>
+  <button class="nav-hamburger" id="nav-hamburger">☰</button>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="/home.html" class="nav-link">Home</a>
+  <a href="/detection.html" class="nav-link">AI Detection</a>
+  <a href="/fraud-database.html" class="nav-link">Fraud Database</a>
+  <a href="/web3-check.html" class="nav-link">Web3 Check</a>
+  <a href="/report.html" class="nav-link">Report</a>
+</div>
+
+<main class="main">
+  <section class="section">
+    <h1 class="section-title" data-i18n="detection.title">AI Fraud Detection</h1>
+    <p class="section-subtitle" data-i18n="detection.subtitle">Enter text, URL, phone or email for an instant risk assessment</p>
+
+    <div class="detect-layout">
+      <!-- LEFT: Input panel -->
+      <div class="detect-panel">
+        <div class="tab-wrapper">
+          <div class="tabs" style="margin-bottom:1.25rem;">
+            <button class="tab-btn active" data-tab="det-text"  data-i18n="detection.tab_text">Text Analysis</button>
+            <button class="tab-btn"        data-tab="det-url"   data-i18n="detection.tab_url">URL Check</button>
+            <button class="tab-btn"        data-tab="det-phone" data-i18n="detection.tab_phone">Phone</button>
+            <button class="tab-btn"        data-tab="det-email" data-i18n="detection.tab_email">Email</button>
+          </div>
+
+          <div id="det-text" class="tab-panel active">
+            <div class="panel-title">📝 <span data-i18n="detection.tab_text">Text Analysis</span></div>
+            <textarea class="form-control" id="text-input" rows="6"
+              data-i18n-placeholder="detection.placeholder_text"
+              placeholder="Paste suspicious text, message, or investment pitch…"></textarea>
+            <button class="btn btn-primary" style="width:100%;margin-top:0.75rem;" onclick="analyzeText()">
+              🤖 <span data-i18n="detection.btn_analyze">Analyze</span>
+            </button>
+          </div>
+
+          <div id="det-url" class="tab-panel">
+            <div class="panel-title">🔗 <span data-i18n="detection.tab_url">URL Check</span></div>
+            <input type="text" class="form-control" id="url-input"
+              data-i18n-placeholder="detection.placeholder_url"
+              placeholder="https://suspicious-site.com" />
+            <button class="btn btn-primary" style="width:100%;margin-top:0.75rem;" onclick="checkUrl()">
+              🔍 <span data-i18n="detection.btn_check">Check Now</span>
+            </button>
+          </div>
+
+          <div id="det-phone" class="tab-panel">
+            <div class="panel-title">📞 <span data-i18n="detection.tab_phone">Phone Check</span></div>
+            <input type="text" class="form-control" id="phone-input"
+              data-i18n-placeholder="detection.placeholder_phone"
+              placeholder="+1234567890" />
+            <button class="btn btn-primary" style="width:100%;margin-top:0.75rem;" onclick="checkPhone()">
+              🔍 <span data-i18n="detection.btn_check">Check Now</span>
+            </button>
+          </div>
+
+          <div id="det-email" class="tab-panel">
+            <div class="panel-title">📧 <span data-i18n="detection.tab_email">Email Check</span></div>
+            <input type="email" class="form-control" id="email-input"
+              data-i18n-placeholder="detection.placeholder_email"
+              placeholder="suspicious@example.com" />
+            <button class="btn btn-primary" style="width:100%;margin-top:0.75rem;" onclick="checkEmail()">
+              🔍 <span data-i18n="detection.btn_check">Check Now</span>
+            </button>
+          </div>
+
+          <!-- Result -->
+          <div class="result-box" id="det-result">
+            <div class="result-risk-row">
+              <span class="result-risk-label">Risk Level</span>
+              <span class="badge" id="res-badge">—</span>
+            </div>
+            <div class="result-score-bar">
+              <div class="result-score-fill" id="res-score-fill" style="width:0%"></div>
+            </div>
+            <div class="result-advice" id="res-advice"></div>
+            <div class="result-signals" id="res-signals"></div>
+            <button class="btn btn-outline btn-sm" style="margin-top:0.75rem;" onclick="reportFromResult()">
+              📢 Report This
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Tips + history -->
+      <div style="display:flex;flex-direction:column;gap:1.5rem;">
+        <div class="detect-panel">
+          <div class="panel-title">💡 Common Scam Signals</div>
+          <ul class="tips-list">
+            <li>Promises of guaranteed high returns (1000%+)</li>
+            <li>Urgency tactics — "Act now or lose your funds"</li>
+            <li>Requests for your seed phrase or private key</li>
+            <li>Impersonation of well-known exchanges (Binance, Coinbase)</li>
+            <li>Fake airdrop / free NFT minting sites</li>
+            <li>Typo-squatted domain names (binance-secure.com)</li>
+            <li>Investment groups via WhatsApp / Telegram</li>
+            <li>Honeypot tokens you can buy but cannot sell</li>
+          </ul>
+        </div>
+
+        <div class="detect-panel">
+          <div class="panel-title">🕓 Recent Checks</div>
+          <div id="history-list">
+            <p style="color:var(--muted);font-size:0.85rem;">No recent checks yet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">© 2025 Web3 Security Platform</footer>
+<div id="toast-container"></div>
+<script src="/js/i18n.js"></script>
+<script src="/js/main.js"></script>
+<script>
+  const history = JSON.parse(localStorage.getItem('w3s_history') || '[]');
+
+  function saveHistory(value, risk) {
+    history.unshift({ value, risk, ts: Date.now() });
+    if (history.length > 10) history.pop();
+    localStorage.setItem('w3s_history', JSON.stringify(history));
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const el = document.getElementById('history-list');
+    if (!history.length) {
+      el.innerHTML = '<p style="color:var(--muted);font-size:0.85rem;">No recent checks yet.</p>';
+      return;
+    }
+    el.innerHTML = history.map(h => `
+      <div class="history-item">
+        <span class="history-value">${W3S.escHtml(h.value)}</span>
+        <span class="badge badge-${W3S.getRiskClass(h.risk)}">${h.risk}</span>
+      </div>
+    `).join('');
+  }
+
+  function showResult(data) {
+    const risk  = data.risk || (data.status === 'DANGER' ? 'HIGH' : data.status === 'SAFE' ? 'LOW' : 'UNKNOWN');
+    const cls   = W3S.getRiskClass(risk);
+    const color = W3S.getRiskColor(risk);
+    const score = data.score != null ? data.score : (risk === 'HIGH' ? 80 : risk === 'MEDIUM' ? 40 : 10);
+
+    const badgeEl = document.getElementById('res-badge');
+    badgeEl.className = `badge badge-${cls}`;
+    badgeEl.textContent = risk;
+
+    const fill = document.getElementById('res-score-fill');
+    fill.style.width = score + '%';
+    fill.style.background = color;
+
+    const advice = data.advice || (data.status === 'DANGER' ? '⚠️ This has been flagged as dangerous!' :
+                  data.status === 'SAFE' ? '✅ Not found in fraud database.' : '⚠️ Unknown — proceed with caution.');
+    document.getElementById('res-advice').textContent = advice;
+
+    const signals = document.getElementById('res-signals');
+    signals.innerHTML = (data.signals || []).map(s => `<span class="signal-tag">${W3S.escHtml(s)}</span>`).join('');
+
+    document.getElementById('det-result').classList.add('show');
+  }
+
+  async function analyzeText() {
+    const text = document.getElementById('text-input').value.trim();
+    if (!text) { W3S.showToast('Please enter text to analyze', 'error'); return; }
+    await runCheck(() => W3S.apiPost('/ai/analyze-text', { text, lang: window.i18n?.currentLang() }), text);
+  }
+
+  async function checkUrl() {
+    const url = document.getElementById('url-input').value.trim();
+    if (!url) { W3S.showToast('Please enter a URL', 'error'); return; }
+    await runCheck(() => W3S.apiPost('/ai/analyze-url', { url }), url);
+  }
+
+  async function checkPhone() {
+    const phone = document.getElementById('phone-input').value.trim();
+    if (!phone) { W3S.showToast('Please enter a phone number', 'error'); return; }
+    await runCheck(() => W3S.apiPost('/detection/phone', { phone }), phone);
+  }
+
+  async function checkEmail() {
+    const email = document.getElementById('email-input').value.trim();
+    if (!email) { W3S.showToast('Please enter an email address', 'error'); return; }
+    await runCheck(() => W3S.apiPost('/detection/email', { email }), email);
+  }
+
+  async function runCheck(fn, value) {
+    const resultBox = document.getElementById('det-result');
+    resultBox.classList.remove('show');
+    try {
+      const res = await fn();
+      if (res.success) {
+        showResult(res.data);
+        const risk = res.data.risk || (res.data.status === 'DANGER' ? 'HIGH' : 'UNKNOWN');
+        saveHistory(value, risk);
+      } else {
+        W3S.showToast(res.message || 'Check failed', 'error');
+      }
+    } catch (err) {
+      W3S.showToast('Error: ' + err.message, 'error');
+    }
+  }
+
+  function reportFromResult() {
+    const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab || '';
+    const map = { 'det-text': 'other', 'det-url': 'url', 'det-phone': 'phone', 'det-email': 'email' };
+    const type = map[activeTab] || 'other';
+    let value = '';
+    if (activeTab === 'det-text')  value = document.getElementById('text-input').value;
+    if (activeTab === 'det-url')   value = document.getElementById('url-input').value;
+    if (activeTab === 'det-phone') value = document.getElementById('phone-input').value;
+    if (activeTab === 'det-email') value = document.getElementById('email-input').value;
+    window.location.href = `/report.html?type=${type}&value=${encodeURIComponent(value)}`;
+  }
+
+  document.addEventListener('DOMContentLoaded', renderHistory);
+</script>
+</body>
+</html>

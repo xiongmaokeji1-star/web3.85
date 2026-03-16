@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — Web3 Security</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body>
+
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">🛡</div>
+      <div class="login-title" data-i18n="admin.login_title">Admin Login</div>
+    </div>
+
+    <div id="login-error" class="alert alert-error" style="display:none;">
+      ❌ Invalid email or password.
+    </div>
+
+    <form id="login-form" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label" data-i18n="admin.email">Email</label>
+        <input type="email" class="form-control" id="login-email" required
+          placeholder="admin@web3security.io" autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="admin.password">Password</label>
+        <input type="password" class="form-control" id="login-password" required
+          placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem;" id="login-btn">
+        🔑 <span data-i18n="admin.btn_login">Sign In</span>
+      </button>
+    </form>
+
+    <p style="text-align:center;margin-top:1.5rem;font-size:0.8rem;color:var(--muted);">
+      <a href="/home.html">← Back to platform</a>
+    </p>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="/js/i18n.js"></script>
+<script src="/js/main.js"></script>
+<script>
+  // Redirect if already logged in
+  const token = localStorage.getItem('w3s_admin_token');
+  if (token) window.location.href = '/admin/dashboard.html';
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    const btn = document.getElementById('login-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Signing in…';
+    document.getElementById('login-error').style.display = 'none';
+
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+
+    try {
+      const res = await W3S.apiPost('/auth/login', { email, password });
+      if (res.success) {
+        localStorage.setItem('w3s_admin_token', res.data.token);
+        localStorage.setItem('w3s_admin_user', JSON.stringify(res.data.user));
+        window.location.href = '/admin/dashboard.html';
+      } else {
+        document.getElementById('login-error').style.display = 'flex';
+        document.getElementById('login-error').textContent = '❌ ' + (res.message || 'Invalid credentials');
+      }
+    } catch (err) {
+      document.getElementById('login-error').style.display = 'flex';
+      document.getElementById('login-error').textContent = '❌ Login failed: ' + err.message;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '🔑 <span data-i18n="admin.btn_login">Sign In</span>';
+    }
+  }
+</script>
+</body>
+</html>
