@@ -1,0 +1,93 @@
+echo2.0 宝塔安装教程
+
+一、依赖服务安装：
+	1、服务器安装宝塔，登录宝塔
+	2、服务器 安装 Nginx
+	3、服务器 JAVA 项目 java 环境管理 安装jdk1.8
+	3、数据库 =》 MySQL 安装 Mysql 8.0.24
+	4、数据库 =》 Redis 安装 Redis 7.0
+二、打包代码：
+	后端 echo2.0 依赖 jdk1.8  maven
+	打包命令： mvn clean package -Dmaven.test.skip=true
+	构建后包：
+		target/echo2-api.jar
+		target/echo2-admin.jar
+	前端：echo2.0-h5 echo2.0-admin 依赖 nodejs 18  yarn pnpm
+	echo2.0-h5 安装 打包命令：
+	yarn && yarn build
+	echo2.0-admin 安装 打包命令：
+	pnpm install && pnpm build
+三、部署：
+	1、数据库初始化：
+		添加数据库 数据库名：echo2 用户名：echo2 密码：Ec2c2ss2
+		上传echo2.0 中 sql目录下 echo2.sql 并导入
+		
+	2、java部署：
+	上传 第二步打包的 api.jar admin.jar 到 /www/wwwroot/echo 目录下
+	网站 =》JAVA项目  添加Java项目： springboot项目
+	jar 路径分别选则上面上传的jar文件，
+	端口 api.jar 配置 8220  
+	端口 admin.jar 配置 8120
+	分别启动两个服务
+	nohup java -Xms512m -Xmx512m -jar echo2-admin.jar  >/dev/null 2>&1 &
+	nohup java -Xms512m -Xmx512m -jar echo2-api.jar  >/dev/null 2>&1 &
+
+
+	3、配置反向代理：
+	网站 =》html项目 添加 webapi.56422324.cc ，打开设置， 配置文件选项 粘贴下面内容到 【include /www/server/panel/vhost/rewrite】行下面：
+  	location ^~ / { 
+      proxy_pass http://127.0.0.1:8220;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Real-Port $remote_port;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header REMOTE-HOST $remote_addr;
+      proxy_connect_timeout 60s;
+      proxy_send_timeout 600s;
+      proxy_read_timeout 600s;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection Upgrade;
+     }
+
+     网站 =》html项目 添加 adminapi.56422324.cc ，打开设置， 配置文件选项 粘贴下面内容到 【include /www/server/panel/vhost/rewrite】行下面：
+  	location ^~ / { 
+      proxy_pass http://127.0.0.1:8120;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Real-Port $remote_port;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header REMOTE-HOST $remote_addr;
+      proxy_connect_timeout 60s;
+      proxy_send_timeout 600s;
+      proxy_read_timeout 600s;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection Upgrade;
+     }
+
+	3、html部署：
+	分别新建 admin.56422324.cc h5.56422324.cc 两个项目
+	上传 第二步 echo2.0-h5 打包的的前端工程dist目录到 /www/wwwroot/h5.56422324.cc
+	上传 第二步 echo2.0-admin 打包的的前端工程dist目录到 /www/wwwroot/admin.56422324.cc
+
+
+
+	update sys_user set password = '$2a$10$RHub2rVmyvQlffLBoLMXgeIJPo15wzQsFgFr5t2fBis/jBMTzPxBW';
+
+
+
+
+修改token：
+com.ruoyi.framework.web.service 1个文件
+com.ruoyi.socket.service.impl 3个文件
+
+
+
+
+
+
+
+
+
+

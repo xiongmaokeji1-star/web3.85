@@ -1,13 +1,7 @@
-FROM node:20-alpine
+FROM nginx:alpine
 
-WORKDIR /app
+ADD ./ /usr/share/nginx/html
 
-COPY backend/package*.json ./
+CMD ["nginx", "-g", "daemon off;"]
 
-RUN npm install --production
-
-COPY backend/ .
-
-EXPOSE 3000
-
-CMD ["node", "server.js"]
+EXPOSE 80
